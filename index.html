@@ -132,36 +132,53 @@
                 <li>Productos para mascotas</li>
                 <li>Artículos de ferretería</li>
             </ol>
-            <!-- Formulario dinámico -->
-            <form id="formProductos" class="mb-4">
-                <div class="mb-3">
-                    <label for="nombre" class="form-label">Nombre del producto</label>
-                    <input type="text" id="nombre" class="form-control" placeholder="Ingrese el nombre del producto">
-                </div>
-                <div class="mb-3">
-                    <label for="descripcion" class="form-label">Descripción</label>
-                    <textarea id="descripcion" class="form-control" placeholder="Ingrese una descripción"></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="categoria" class="form-label">Categoría</label>
-                    <select id="categoria" class="form-select">
-                        <option value="">Seleccione una categoría</option>
-                        <option value="Granos">Granos</option>
-                        <option value="Lácteos">Lácteos</option>
-                        <option value="Limpieza">Limpieza</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-success">Guardar</button>
-            </form>
+            <!-- Formulario -->
+            
+<form id="formProductos" class="mb-4">
 
-            <!-- Mensajes -->
-            <div id="mensaje"></div>
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre del producto</label>
+        <input type="text" id="nombre" class="form-control"
+            placeholder="Ingrese el nombre del producto">
+        <small id="errorNombre" class="text-danger"></small>
+    </div>
 
-            <!-- Lista dinámica -->
-            <ul id="listaProductos" class="list-group mb-3"></ul>
+    <div class="mb-3">
+        <label for="descripcion" class="form-label">Descripción</label>
+        <textarea id="descripcion" class="form-control"
+            placeholder="Ingrese una descripción"></textarea>
+        <small id="errorDescripcion" class="text-danger"></small>
+    </div>
 
-            <!-- Total -->
-            <p>Total de registros: <span id="total">0</span></p>
+    <div class="mb-3">
+        <label for="categoria" class="form-label">Categoría</label>
+        <select id="categoria" class="form-select">
+            <option value="">Seleccione una categoría</option>
+            <option value="Granos">Granos</option>
+            <option value="Lácteos">Lácteos</option>
+            <option value="Limpieza">Limpieza</option>
+        </select>
+        <small id="errorCategoria" class="text-danger"></small>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        Guardar
+    </button>
+
+</form>
+
+<!-- Mensajes -->
+<div id="mensaje"></div>
+
+<!-- Lista dinámica -->
+<ul id="listaProductos" class="list-group mb-3"></ul>
+
+<!-- Total -->
+<p>Total de registros: <span id="total">0</span></p>
+
+
+
+           
 
         </section>
 
@@ -169,31 +186,43 @@
         <section id="contacto" class="container p-5">
             <h2 class="text-center mb-4">Contacto</h2>
             <!-- Formulario dinámico de contacto -->
-            <form id="formContacto" class="mb-4">
-                <div class="mb-3">
-                    <label for="nombreContacto" class="form-label">Nombre</label>
-                    <input type="text" id="nombreContacto" class="form-control" placeholder="Ingrese su nombre">
-                </div>
-                <div class="mb-3">
-                    <label for="correoContacto" class="form-label">Correo electrónico</label>
-                    <input type="email" id="correoContacto" class="form-control" placeholder="Ingrese su correo">
-                </div>
-                <div class="mb-3">
-                    <label for="mensajeContacto" class="form-label">Mensaje</label>
-                    <textarea id="mensajeContacto" class="form-control" placeholder="Escriba su mensaje"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success">Enviar</button>
-            </form>
+<form id="formContacto" class="mb-4">
 
-            <!-- Mensajes de validación -->
-            <div id="mensajeContactoValidacion"></div>
+    <div class="mb-3">
+        <label for="nombreContacto" class="form-label">Nombre</label>
+        <input type="text" id="nombreContacto" class="form-control"
+            placeholder="Ingrese su nombre">
+        <small id="errorNombreContacto" class="text-danger"></small>
+    </div>
 
-            <!-- Lista dinámica de contactos -->
-            <ul id="listaContactos" class="list-group mb-3"></ul>
+    <div class="mb-3">
+        <label for="correoContacto" class="form-label">Correo electrónico</label>
+        <input type="email" id="correoContacto" class="form-control"
+            placeholder="Ingrese su correo">
+        <small id="errorCorreoContacto" class="text-danger"></small>
+    </div>
 
-            <!-- Total -->
-            <p>Total de contactos registrados: <span id="totalContactos">0</span></p>
+    <div class="mb-3">
+        <label for="mensajeContacto" class="form-label">Mensaje</label>
+        <textarea id="mensajeContacto" class="form-control"
+            placeholder="Escriba su mensaje"></textarea>
+        <small id="errorMensajeContacto" class="text-danger"></small>
+    </div>
 
+    <button type="submit" class="btn btn-success">
+        Enviar
+    </button>
+
+</form>
+
+<!-- Mensajes de validación -->
+<div id="mensajeContactoValidacion"></div>
+
+<!-- Lista dinámica de contactos -->
+<ul id="listaContactos" class="list-group mb-3"></ul>
+
+<!-- Total -->
+<p>Total de contactos registrados: <span id="totalContactos">0</span></p>
             <div class="text-center mt-4">
                 <a href="mailto:abastoseloferton@abastos.com" class="btn btn-outline-primary m-2">Correo</a>
                 <a href="https://facebook.com" class="btn btn-outline-info m-2">Facebook</a>

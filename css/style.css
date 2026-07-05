@@ -80,10 +80,29 @@ h2 {
 }
 
 /* Formularios */
-form input, form textarea {
+form input,
+form textarea,
+form select {
     border: 1px solid #ddf6f0;
     border-radius: 4px;
     padding: 10px;
     width: 100%;
     margin-bottom: 15px;
-    }
+}
+
+/* Mensajes de validación */
+small {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+/* Campo válido */
+.is-valid {
+    border: 2px solid #198754 !important;
+}
+
+/* Campo inválido */
+.is-invalid {
+    border: 2px solid #dc3545 !important;
+}
