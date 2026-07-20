@@ -9,17 +9,17 @@
     <title>Abastos "El Ofertón"</title>
     
     <!-- Tu CSS externo -->
-    <link rel="stylesheet" href="resources/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 
 <body>
-    
-
+ <!-- INICIO DE SECCIÓN QUE PODRÍA CONVERTIRSE EN base.html -->
+  <!-- Encabezado reutilizable -->
     <header class="bg-dark text-white text-center p-4">
         <h1>ABASTOS "EL OFERTÓN"</h1>
     </header>
-
+   <!-- Menú reutilizable -->
     <!-- Navbar responsivo con Bootstrap -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-info">
         <div class="container-fluid">
@@ -82,45 +82,8 @@
         <section id="productos" class="container p-5">
             <h2 class="text-center mb-4">Productos</h2>
 
-            <!-- Tarjetas con imágenes -->
-            <div class="row">
-                <!-- Tarjeta Pan -->
-                <div class="col-md-4">
-                    <div class="card m-3 shadow">
-                        <img src="img/pan.jpg" class="card-img-top img-fluid" alt="Pan">
-                        <div class="card-body">
-                            <h5 class="card-title">Pan 500g</h5>
-                            <p class="card-text">$0.80</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tarjeta Huevos -->
-                <div class="col-md-4">
-                    <div class="card m-3 shadow">
-                        <img src="img/huevos.jpg" class="card-img-top img-fluid" alt="Huevos">
-                        <div class="card-body">
-                            <h5 class="card-title">Huevos (12 unidades)</h5>
-                            <p class="card-text">$2.50</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tarjeta Leche -->
-                <div class="col-md-4">
-                    <div class="card m-3 shadow">
-                        <img src="img/leche.jpg" class="card-img-top img-fluid" alt="Leche">
-                        <div class="card-body">
-                            <h5 class="card-title">Leche 1L</h5>
-                            <p class="card-text">$1.20</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <!-- Productos generados dinámicamente -->
+             
             <ul>
                 <li>Abarrotes</li>
                 <li>Frutas y verduras frescas</li>
@@ -259,10 +222,12 @@
             <p>Horario de atención: Lunes a Sábado de 8h00 a 20h00.</p>
         </aside>
     </main>
-
+ <!-- FIN DE SECCIÓN QUE PODRÍA CONVERTIRSE EN base.html -->
+  <!-- Pie de página reutilizable -->
     <footer class="bg-dark text-white text-center p-3">
         <p>Martinez Jacho  Nayerli Elizabeth  - Desarrollo de Aplicaciones Web - 2026</p>
     </footer>
+
     <script src="js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 

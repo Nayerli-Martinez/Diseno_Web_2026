@@ -13,8 +13,55 @@ const errorNombre = document.getElementById("errorNombre");
 const errorDescripcion = document.getElementById("errorDescripcion");
 const errorCategoria = document.getElementById("errorCategoria");
 
-let contador = 0;
+let productos = [];
 
+function mostrarProductos() {
+
+    lista.innerHTML = "";
+
+    if (productos.length === 0) {
+
+        lista.innerHTML = `
+            <li class="list-group-item">
+                No existen productos registrados.
+            </li>
+        `;
+
+        total.textContent = 0;
+        return;
+    }
+
+    productos.forEach((producto, index) => {
+
+        lista.innerHTML += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+
+            <div>
+                <strong>${producto.nombre}</strong> -
+                ${producto.descripcion}
+                <span class="badge bg-info">
+                    ${producto.categoria}
+                </span>
+            </div>
+
+            <button class="btn btn-danger btn-sm"
+                    onclick="eliminarProducto(${index})">
+                Eliminar
+            </button>
+
+        </li>
+        `;
+    });
+
+    total.textContent = productos.length;
+}
+
+function eliminarProducto(index) {
+
+    productos.splice(index, 1);
+
+    mostrarProductos();
+}
 // VALIDAR NOMBRE
 function validarNombre() {
     const valor = nombreInput.value.trim();
@@ -114,40 +161,22 @@ form.addEventListener("submit", function (e) {
     mensaje.innerHTML =
         '<div class="alert alert-success">Producto agregado correctamente.</div>';
 
-    const li = document.createElement("li");
+    productos.push({
+    nombre: nombre,
+    descripcion: descripcion,
+    categoria: categoria
+  });
 
-    li.className =
-        "list-group-item d-flex justify-content-between align-items-center";
+mostrarProductos();
+form.reset();
 
-    li.innerHTML = `
-        <div>
-            <strong>${nombre}</strong> - ${descripcion}
-            <span class="badge bg-info">${categoria}</span>
-        </div>
-        <button class="btn btn-danger btn-sm eliminar">
-            Eliminar
-        </button>
-    `;
-
-    lista.appendChild(li);
-
-    contador++;
-    total.textContent = contador;
-
-    form.reset();
-
-    nombreInput.classList.remove("is-valid");
-    descripcionInput.classList.remove("is-valid");
-    categoriaInput.classList.remove("is-valid");
-
-    li.querySelector(".eliminar").addEventListener("click", function () {
-
-        lista.removeChild(li);
-
-        contador--;
-        total.textContent = contador;
-    });
+nombreInput.classList.remove("is-valid");
+descripcionInput.classList.remove("is-valid");
+categoriaInput.classList.remove("is-valid");
+        
 });
+
+mostrarProductos();
 // CONTACTO
 
 const formContacto = document.getElementById("formContacto");
