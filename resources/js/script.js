@@ -289,5 +289,7 @@ formContacto.addEventListener("submit", function (e) {
         contadorContactos--;
         totalContactos.textContent = contadorContactos;
     });
+
+    
     
 });
