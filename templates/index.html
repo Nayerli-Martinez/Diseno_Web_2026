@@ -1,26 +1,12 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="description"
-        content="Abastos El Ofertón - Tienda de confianza para productos de primera necesidad, abarrotes y más.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abastos "El Ofertón"</title>
+{% block title %}{{ titulo }}{% endblock %}
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- CSS propio -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-</head>
-
-<body>
+{% block content %}
 
     <!-- Encabezado -->
     <header class="bg-dark text-white text-center py-4">
-        <h1 class="fw-bold">ABASTOS "EL OFERTÓN"</h1>
+        <h1 class="fw-bold">{{ titulo|upper }}</h1>
         <p class="mb-0">La tienda de confianza para tu hogar</p>
     </header>
 
@@ -29,576 +15,230 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">El Ofertón</a>
 
-            <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#menu">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="menu">
-
                 <ul class="navbar-nav ms-auto">
-
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#inicio">Inicio</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#quienes-somos">Quiénes Somos</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#productos">Productos</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contacto">Contacto</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#ubicacion">Ubicación</a>
-                    </li>
-
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('inicio') }}">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#quienes-somos">Quiénes Somos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('productos') }}">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#ubicacion">Ubicación</a></li>
                 </ul>
-
             </div>
         </div>
     </nav>
 
     <main>
 
-        <!-- Inicio -->
+        <!-- Inicio con datos dinámicos -->
         <section id="inicio" class="bg-primary text-white text-center py-5">
-
             <div class="container">
+                <h2 class="display-5 fw-bold">Bienvenidos</h2>
+                <p class="lead">En Abastos "El Ofertón" encontrará productos de calidad al mejor precio.</p>
+                
+                <!-- Uso del diccionario 'resumen' enviado desde app.py -->
+                <div class="row justify-content-center my-4">
+                    <div class="col-md-3">
+                        <div class="card text-dark p-2">
+                            <small>Estado Sistema</small>
+                            <strong>{{ resumen.estado_sistema }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-dark p-2">
+                            <small>Productos Total</small>
+                            <strong>{{ resumen.total_productos }}</strong>
+                        </div>
+                    </div>
+                </div>
 
-                <h2 class="display-5 fw-bold">
-                    Bienvenidos
-                </h2>
-
-                <p class="lead">
-                    En Abastos "El Ofertón" encontrará productos de calidad
-                    al mejor precio.
-                </p>
-
-                <a href="#productos"
-                    class="btn btn-light btn-lg">
-
-                    Ver Productos
-
-                </a>
-
+                <a href="{{ url_for('productos') }}" class="btn btn-light btn-lg">Ver Productos</a>
             </div>
-
         </section>
------------
+
         <!-- Quiénes Somos -->
-
         <section id="quienes-somos" class="container py-5">
-
             <div class="row align-items-center">
-
                 <div class="col-lg-6">
-
-                    <img src="{{ url_for('static', filename='img/oferton.jpg.png') }}"
-                        class="img-fluid rounded shadow"
-                        alt="Abastos">
-
+                    <img src="{{ url_for('static', filename='img/oferton.jpg.png') }}" class="img-fluid rounded shadow" alt="Abastos">
                 </div>
-
                 <div class="col-lg-6">
-
-                    <h2 class="mb-3">
-
-                        Quiénes Somos
-
-                    </h2>
-
+                    <h2 class="mb-3">Quiénes Somos</h2>
                     <p>
-
-                        Somos una empresa dedicada a ofrecer productos de
-                        excelente calidad a precios competitivos.
-
-                        Nuestro compromiso es brindar un servicio de calidad,
-                        atención personalizada y una amplia variedad de productos
-                        para satisfacer las necesidades de nuestros clientes.
-
-                        Trabajamos día a día para convertirnos en la tienda
-                        preferida de las familias ecuatorianas.
-
+                        Somos una empresa dedicada a ofrecer productos de excelente calidad a precios competitivos.
+                        Nuestro compromiso es brindar un servicio de calidad, atención personalizada y una amplia variedad de productos para satisfacer las necesidades de nuestros clientes.
+                        Trabajamos día a día para convertirnos en la tienda preferida de las familias ecuatorianas.
                     </p>
-
                 </div>
-
             </div>
-
         </section>
 
         <!-- Productos -->
-
         <section id="productos" class="container py-5">
-
-            <h2 class="text-center mb-5">
-
-                Nuestros Productos
-
-            </h2>
+            <h2 class="text-center mb-5">Nuestros Productos</h2>
 
             <div class="row">
-
                 <div class="col-md-6">
-
                     <h4>Productos Disponibles</h4>
-
                     <ul class="list-group mb-4">
-
                         <li class="list-group-item">Abarrotes</li>
                         <li class="list-group-item">Frutas y Verduras</li>
                         <li class="list-group-item">Productos de Limpieza</li>
                         <li class="list-group-item">Lácteos</li>
                         <li class="list-group-item">Higiene Personal</li>
-
                     </ul>
-
                 </div>
 
                 <div class="col-md-6">
-
                     <h4>Más Categorías</h4>
-
                     <ol class="list-group list-group-numbered">
-
                         <li class="list-group-item">Panadería</li>
                         <li class="list-group-item">Congelados</li>
                         <li class="list-group-item">Snacks</li>
                         <li class="list-group-item">Mascotas</li>
                         <li class="list-group-item">Ferretería</li>
-
                     </ol>
-
                 </div>
-
             </div>
 
             <hr class="my-5">
 
             <!-- Formulario -->
-
             <form id="formProductos">
-
                 <div class="row">
-
                     <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Nombre del producto
-
-                        </label>
-
-                        <input
-                            type="text"
-                            id="nombre"
-                            class="form-control"
-                            placeholder="Ingrese el producto">
-
+                        <label class="form-label">Nombre del producto</label>
+                        <input type="text" id="nombre" class="form-control" placeholder="Ingrese el producto">
                         <small id="errorNombre" class="text-danger"></small>
-
                     </div>
 
                     <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Categoría
-
-                        </label>
-
-                        <select
-                            id="categoria"
-                            class="form-select">
-
+                        <label class="form-label">Categoría</label>
+                        <select id="categoria" class="form-select">
                             <option value="">Seleccione</option>
                             <option>Granos</option>
                             <option>Lácteos</option>
                             <option>Limpieza</option>
-
                         </select>
-
                         <small id="errorCategoria" class="text-danger"></small>
-
                     </div>
-
                 </div>
 
                 <div class="mb-3">
-
-                    <label class="form-label">
-
-                        Descripción
-
-                    </label>
-
-                    <textarea
-                        id="descripcion"
-                        class="form-control"
-                        rows="3"></textarea>
-
+                    <label class="form-label">Descripción</label>
+                    <textarea id="descripcion" class="form-control" rows="3"></textarea>
                     <small id="errorDescripcion" class="text-danger"></small>
-
                 </div>
 
-                <button type="submit" class="btn btn-success">
-
-                  Guardar Producto
-
-                </button>
-
+                <button type="submit" class="btn btn-success">Guardar Producto</button>
             </form>
 
-            <!-- Spinner -->
-
-            <div
-                id="spinner"
-                class="text-center my-4 d-none">
-
-                <div
-                    class="spinner-border text-success"
-                    role="status">
-
-                    <span class="visually-hidden">
-                        Cargando...
-                    </span>
-
+            <div id="spinner" class="text-center my-4 d-none">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Cargando...</span>
                 </div>
-
             </div>
-
-            <!-- Alert -->
 
             <div id="mensaje" class="mt-3"></div>
-
-            <!-- Cards Dinámicas -->
-
-            <div
-                id="listaProductos"
-                class="row g-4 mt-4">
-
-            </div>
+            <div id="listaProductos" class="row g-4 mt-4"></div>
 
             <div class="mt-4">
-
-                <h5>
-
-                    Total de registros:
-
-                    <span
-                        class="badge bg-success"
-                        id="total">
-
-                        0
-
-                    </span>
-
-                </h5>
-
+                <h5>Total de registros: <span class="badge bg-success" id="total">{{ resumen.total_productos }}</span></h5>
             </div>
-
         </section>
-                <!-- Contacto -->
-        <section id="contacto" class="container py-5">
 
-            <h2 class="text-center mb-5">
-                Contáctanos
-            </h2>
+        <!-- Contacto -->
+        <section id="contacto" class="container py-5">
+            <h2 class="text-center mb-5">Contáctanos</h2>
 
             <form id="formContacto">
-
                 <div class="row">
-
                     <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            Nombre
-                        </label>
-
-                        <input
-                            type="text"
-                            id="nombreContacto"
-                            class="form-control"
-                            placeholder="Ingrese su nombre">
-
-                        <small id="errorNombreContacto"
-                            class="text-danger"></small>
-
+                        <label class="form-label">Nombre</label>
+                        <input type="text" id="nombreContacto" class="form-control" placeholder="Ingrese su nombre">
+                        <small id="errorNombreContacto" class="text-danger"></small>
                     </div>
 
                     <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            Correo electrónico
-                        </label>
-
-                        <input
-                            type="email"
-                            id="correoContacto"
-                            class="form-control"
-                            placeholder="Ingrese su correo">
-
-                        <small id="errorCorreoContacto"
-                            class="text-danger"></small>
-
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" id="correoContacto" class="form-control" placeholder="Ingrese su correo">
+                        <small id="errorCorreoContacto" class="text-danger"></small>
                     </div>
-
                 </div>
 
                 <div class="mb-3">
-
-                    <label class="form-label">
-                        Mensaje
-                    </label>
-
-                    <textarea
-                        id="mensajeContacto"
-                        class="form-control"
-                        rows="4"
-                        placeholder="Escriba su mensaje"></textarea>
-
-                    <small id="errorMensajeContacto"
-                        class="text-danger"></small>
-
+                    <label class="form-label">Mensaje</label>
+                    <textarea id="mensajeContacto" class="form-control" rows="4" placeholder="Escriba su mensaje"></textarea>
+                    <small id="errorMensajeContacto" class="text-danger"></small>
                 </div>
 
-                <button
-                    type="submit"
-                    class="btn btn-primary">
-
-                    Enviar Mensaje
-
-                </button>
-
+                <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
             </form>
 
-            <div
-                id="mensajeContactoValidacion"
-                class="mt-3">
-            </div>
+            <div id="mensajeContactoValidacion" class="mt-3"></div>
+            <div id="listaContactos" class="row g-3 mt-4"></div>
 
-            <div
-                id="listaContactos"
-                class="row g-3 mt-4">
-            </div>
-
-            <h5 class="mt-4">
-
-                Total de contactos:
-
-                <span
-                    class="badge bg-primary"
-                    id="totalContactos">
-
-                    0
-
-                </span>
-
-            </h5>
+            <h5 class="mt-4">Total de contactos: <span class="badge bg-primary" id="totalContactos">{{ resumen.total_clientes }}</span></h5>
 
             <hr class="my-5">
 
             <div class="text-center">
-
-                <a href="mailto:abastoseloferton@abastos.com"
-                    class="btn btn-outline-primary m-2">
-
-                    Correo
-
-                </a>
-
-                <a href="https://facebook.com"
-                    class="btn btn-outline-info m-2"
-                    target="_blank">
-
-                    Facebook
-
-                </a>
-
-                <a href="https://maps.google.com"
-                    class="btn btn-outline-danger m-2"
-                    target="_blank">
-
-                    Google Maps
-
-                </a>
-
+                <a href="mailto:abastoseloferton@abastos.com" class="btn btn-outline-primary m-2">Correo</a>
+                <a href="https://facebook.com" class="btn btn-outline-info m-2" target="_blank">Facebook</a>
+                <a href="https://maps.google.com" class="btn btn-outline-danger m-2" target="_blank">Google Maps</a>
             </div>
 
             <div class="mt-4">
-
                 <p><strong>Teléfono:</strong> +593 456 7890</p>
-
-                <p><strong>Dirección:</strong>
-                    Calle Principal General Enríquez,
-                    Atuntaqui, Ecuador
-                </p>
-
+                <p><strong>Dirección:</strong> Calle Principal General Enríquez, Atuntaqui, Ecuador</p>
             </div>
 
-            <video
-                controls
-                class="w-100 rounded shadow mt-4">
-
-               <source
-                    src="{{ url_for('static', filename='videos/El Ofertón.mp4') }}"
-                    type="video/mp4">
-
+            <video controls class="w-100 rounded shadow mt-4">
+               <source src="{{ url_for('static', filename='videos/El Ofertón.mp4') }}" type="video/mp4">
             </video>
-
         </section>
 
         <!-- Ubicación -->
-
-        <section
-            id="ubicacion"
-            class="container py-5 text-center">
-
-            <h2 class="mb-4">
-                Nuestra Ubicación
-            </h2>
-
-            <p>
-                Encuéntranos fácilmente en Atuntaqui.
-            </p>
-
-            <iframe
-                class="rounded shadow"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d8550.413636712085!2d-78.22366762616981!3d0.3294774441373355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e2a3fb2081f01fb%3A0xb8853bd38f9a487e!2saLabuena%20Atuntaqui!5e1!3m2!1ses-419!2sec!4v1781572758561!5m2!1ses-419!2sec"
-                width="100%"
-                height="350"
-                style="border:0;"
-                allowfullscreen=""
-                loading="lazy">
-            </iframe>
-
+        <section id="ubicacion" class="container py-5 text-center">
+            <h2 class="mb-4">Nuestra Ubicación</h2>
+            <p>Encuéntranos fácilmente en Atuntaqui.</p>
+            <iframe class="rounded shadow" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d8550.413636712085!2d-78.22366762616981!3d0.3294774441373355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e2a3fb2081f01fb%3A0xb8853bd38f9a487e!2saLabuena%20Atuntaqui!5e1!3m2!1ses-419!2sec!4v1781572758561!5m2!1ses-419!2sec" width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
         </section>
 
         <!-- Información -->
-
         <aside class="container py-5">
-
             <div class="alert alert-warning text-center">
-
                 <h4>Promoción Especial</h4>
-
-                <p class="mb-0">
-
-                    ¡2x1 en productos seleccionados!
-
-                </p>
-
+                <p class="mb-0">¡2x1 en productos seleccionados!</p>
             </div>
 
             <div class="card mt-4 shadow">
-
                 <div class="card-body text-center">
-
-                    <h5 class="card-title">
-
-                        Horario de Atención
-
-                    </h5>
-
-                    <p>
-
-                        Lunes a Sábado<br>
-
-                        08h00 - 20h00
-
-                    </p>
-
+                    <h5 class="card-title">Horario de Atención</h5>
+                    <p>Lunes a Sábado<br>08h00 - 20h00</p>
                 </div>
-
             </div>
-
         </aside>
 
     </main>
 
     <!-- Modal -->
-
-    <div
-        class="modal fade"
-        id="modalProducto"
-        tabindex="-1">
-
+    <div class="modal fade" id="modalProducto" tabindex="-1">
         <div class="modal-dialog">
-
             <div class="modal-content">
-
                 <div class="modal-header bg-success text-white">
-
-                    <h5 class="modal-title">
-
-                        Producto Registrado
-
-                    </h5>
-
-                    <button
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
-                    </button>
-
+                    <h5 class="modal-title">Producto Registrado</h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
-                <div class="modal-body">
-
-                    El producto fue registrado correctamente.
-
-                </div>
-
+                <div class="modal-body">El producto fue registrado correctamente.</div>
                 <div class="modal-footer">
-
-                    <button
-                        class="btn btn-success"
-                        data-bs-dismiss="modal">
-
-                        Aceptar
-
-                    </button>
-
+                    <button class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
-    <!-- Footer -->
-
-    <footer class="bg-dark text-white text-center py-4">
-
-        <p class="mb-0">
-
-            Martínez Jacho Nayerli Elizabeth
-
-        </p>
-
-        <p class="mb-0">
-
-            Desarrollo de Aplicaciones Web - 2026
-
-        </p>
-
-    </footer>
-
-    <!-- Bootstrap -->
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- JavaScript -->
-
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
-</body>
-
-</html>
+{% endblock %}
