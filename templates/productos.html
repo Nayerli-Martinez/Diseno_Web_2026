@@ -1,37 +1,28 @@
-{% extends "base.html" %}
-
-{% block title %}Productos{% endblock %}
+{% extends 'base.html' %}
 
 {% block content %}
-<h2>Catálogo de Productos</h2>
 
-<table class="table table-striped">
+<h2 class="mb-4">Productos de Abastos El Ofertón</h2>
+
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
+            <th>ID</th>
             <th>Producto</th>
-            <th>Categoría</th>
             <th>Precio</th>
-            <th>Estado</th>
         </tr>
     </thead>
+
     <tbody>
-        <!-- Generación dinámica de filas -->
-        {% for prod in productos %}
+        {% for producto in productos %}
         <tr>
-            <!-- Filtro para formato de texto -->
-            <td>{{ prod.nombre|title }}</td>
-            <td>{{ prod.categoria|upper }}</td>
-            <td>${{ prod.precio }}</td>
-            <td>
-                <!-- Estructura condicional -->
-                {% if prod.stock > 0 %}
-                    <span class="badge bg-success" style="color: green;">Disponible ({{ prod.stock }})</span>
-                {% else %}
-                    <span class="badge bg-danger" style="color: red;">Agotado</span>
-                {% endif %}
-            </td>
+            <td>{{ producto[0] }}</td>
+            <td>{{ producto[1] }}</td>
+            <td>${{ producto[2] }}</td>
         </tr>
         {% endfor %}
     </tbody>
+
 </table>
+
 {% endblock %}

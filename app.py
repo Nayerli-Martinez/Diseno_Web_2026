@@ -4,16 +4,43 @@ from forms.cliente_form import ClienteForm
 from forms.proveedor_form import ProveedorForm
 from forms.facturacion_form import FacturacionForm
 
+import sqlite3
+import os
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'clave_secreta_123'
+
+DB_PATH = os.path.join('data', 'eloferton.db')
+
+
+def crear_bd():
+    os.makedirs('data', exist_ok=True)
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS productos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            precio REAL NOT NULL
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+crear_bd()
 
 
 @app.route('/')
 def inicio():
+
     titulo = "Panel Principal"
 
     resumen = {
-        "total_productos": 5,
+        "total_productos": 0,
         "total_clientes": 3,
         "estado_sistema": "Activo"
     }
@@ -28,17 +55,18 @@ def inicio():
 @app.route('/productos')
 def productos():
 
-    lista_productos = [
-        {"nombre": "Arroz", "categoria": "Granos", "precio": 1.25, "stock": 50},
-        {"nombre": "Azúcar", "categoria": "Abarrotes", "precio": 1.10, "stock": 40},
-        {"nombre": "Aceite", "categoria": "Víveres", "precio": 3.50, "stock": 25},
-        {"nombre": "Leche", "categoria": "Lácteos", "precio": 1.20, "stock": 30},
-        {"nombre": "Fideos", "categoria": "Pastas", "precio": 0.85, "stock": 60}
-    ]
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM productos")
+
+    productos = cursor.fetchall()
+
+    conn.close()
 
     return render_template(
         'productos.html',
-        productos=lista_productos
+        productos=productos
     )
 
 
@@ -49,23 +77,28 @@ def formulario_producto():
 
     if form.validate_on_submit():
 
-        producto = {
-            "nombre": form.nombre.data,
-            "precio": form.precio.data
-        }
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
 
-        print("PRODUCTO REGISTRADO")
-        print(producto)
+        cursor.execute(
+            """
+            INSERT INTO productos(nombre, precio)
+            VALUES (?, ?)
+            """,
+            (
+                form.nombre.data,
+                form.precio.data
+            )
+        )
+
+        conn.commit()
+        conn.close()
 
         return render_template(
             'formulario_producto.html',
             form=form,
             mensaje="Producto registrado correctamente"
         )
-
-    if form.is_submitted():
-        print("ERRORES:")
-        print(form.errors)
 
     return render_template(
         'formulario_producto.html',
