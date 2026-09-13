@@ -2,27 +2,65 @@
 
 {% block content %}
 
-<h2 class="mb-4">Productos de Abastos El Ofertón</h2>
+<div class="container mt-4">
 
-<table class="table table-bordered table-striped">
-    <thead>
+```
+<h2 class="text-center text-primary mb-4">
+    Productos de Abastos El Ofertón
+</h2>
+
+<table class="table table-bordered table-hover table-striped">
+
+    <thead class="table-dark">
         <tr>
             <th>ID</th>
-            <th>Producto</th>
+            <th>Nombre</th>
             <th>Precio</th>
+            <th>Acciones</th>
         </tr>
     </thead>
 
     <tbody>
+
         {% for producto in productos %}
+
         <tr>
             <td>{{ producto[0] }}</td>
             <td>{{ producto[1] }}</td>
             <td>${{ producto[2] }}</td>
+
+            <td>
+
+                <a href="{{ url_for('editar_producto', id=producto[0]) }}"
+                   class="btn btn-warning btn-sm">
+                     Editar
+                </a>
+
+                <a href="{{ url_for('eliminar_producto', id=producto[0]) }}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('¿Está seguro de eliminar este producto?');">
+                     Eliminar
+                </a>
+
+            </td>
         </tr>
+
         {% endfor %}
+
     </tbody>
 
 </table>
+
+<div class="text-center mt-3">
+
+    <a href="{{ url_for('formulario_producto') }}"
+       class="btn btn-success">
+        ➕ Agregar Producto
+    </a>
+
+</div>
+```
+
+</div>
 
 {% endblock %}

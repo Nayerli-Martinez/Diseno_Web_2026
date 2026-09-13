@@ -1,37 +1,13 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from forms.producto_form import ProductoForm
 from forms.cliente_form import ClienteForm
 from forms.proveedor_form import ProveedorForm
 from forms.facturacion_form import FacturacionForm
 
-import sqlite3
-import os
+from conexion.conexion import obtener_conexion
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'clave_secreta_123'
-
-DB_PATH = os.path.join('data', 'eloferton.db')
-
-
-def crear_bd():
-    os.makedirs('data', exist_ok=True)
-
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS productos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            precio REAL NOT NULL
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-
-
-crear_bd()
 
 
 @app.route('/')
@@ -55,14 +31,15 @@ def inicio():
 @app.route('/productos')
 def productos():
 
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
 
     cursor.execute("SELECT * FROM productos")
 
     productos = cursor.fetchall()
 
-    conn.close()
+    cursor.close()
+    conexion.close()
 
     return render_template(
         'productos.html',
@@ -77,22 +54,27 @@ def formulario_producto():
 
     if form.validate_on_submit():
 
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
 
         cursor.execute(
             """
-            INSERT INTO productos(nombre, precio)
-            VALUES (?, ?)
+            INSERT INTO productos
+            (nombre, precio, stock, id_proveedor)
+            VALUES (%s, %s, %s, %s)
             """,
             (
                 form.nombre.data,
-                form.precio.data
+                form.precio.data,
+                10,
+                1
             )
         )
 
-        conn.commit()
-        conn.close()
+        conexion.commit()
+
+        cursor.close()
+        conexion.close()
 
         return render_template(
             'formulario_producto.html',
@@ -104,6 +86,65 @@ def formulario_producto():
         'formulario_producto.html',
         form=form
     )
+
+
+@app.route('/editar_producto/<int:id>', methods=['GET', 'POST'])
+def editar_producto(id):
+
+    form = ProductoForm()
+
+    if form.validate_on_submit():
+
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
+
+        cursor.execute(
+            """
+            UPDATE productos
+            SET nombre=%s,
+                precio=%s
+            WHERE id_producto=%s
+            """,
+            (
+                form.nombre.data,
+                form.precio.data,
+                id
+            )
+        )
+
+        conexion.commit()
+
+        cursor.close()
+        conexion.close()
+
+        return redirect('/productos')
+
+    return render_template(
+        'formulario_producto.html',
+        form=form
+    )
+
+
+@app.route('/eliminar_producto/<int:id>')
+def eliminar_producto(id):
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM productos
+        WHERE id_producto=%s
+        """,
+        (id,)
+    )
+
+    conexion.commit()
+
+    cursor.close()
+    conexion.close()
+
+    return redirect('/productos')
 
 
 @app.route('/clientes')
