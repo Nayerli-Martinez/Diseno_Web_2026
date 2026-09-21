@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="text-center mb-4">
+        <h1>Panel Principal</h1>
+        <p class="text-muted">
+            Bienvenido, {{ current_user.usuario }}
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <h5>Productos</h5>
+                    <h2>{{ resumen.total_productos }}</h2>
+                    <a href="{{ url_for('productos') }}" class="btn btn-primary">
+                        Ver productos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <h5>Clientes</h5>
+                    <h2>{{ resumen.total_clientes }}</h2>
+                    <a href="{{ url_for('clientes') }}" class="btn btn-primary">
+                        Ver clientes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <h5>Proveedores</h5>
+                    <a href="{{ url_for('proveedores') }}" class="btn btn-primary mt-2">
+                        Ver proveedores
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <h5>Facturación</h5>
+                    <a href="{{ url_for('facturacion') }}" class="btn btn-primary mt-2">
+                        Ver facturación
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-5">
+        <p class="text-success">
+            Estado del sistema: {{ resumen.estado_sistema }}
+        </p>
+
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">
+            Cerrar sesión
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
