@@ -1,10 +1,7 @@
+import os
 import psycopg2
 
 def obtener_conexion():
-    conexion = psycopg2.connect(
-        host="localhost",
-        database="abastos_oferton",
-        user="postgres",
-        password="admin123"
+    return psycopg2.connect(
+        os.environ["DATABASE_URL"]
     )
-    return conexion
