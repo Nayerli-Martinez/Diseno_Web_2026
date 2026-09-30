@@ -1,18 +1,24 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, EmailField, SubmitField
 from wtforms.validators import DataRequired
 
 
 class ProveedorForm(FlaskForm):
 
-    empresa = StringField(
-        'Empresa',
+    nombre = StringField(
+        'Nombre',
         validators=[DataRequired()]
     )
 
     telefono = StringField(
-        'Teléfono',
+        'Telefono',
         validators=[DataRequired()]
     )
 
-    guardar = SubmitField('Guardar')
+    correo = EmailField(
+        'Correo'
+    )
+
+    guardar = SubmitField(
+        'Guardar Proveedor'
+    )

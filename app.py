@@ -22,7 +22,9 @@ from forms.login_form import LoginForm
 from forms.usuario_form import UsuarioForm
 
 from conexion.conexion import obtener_conexion
-
+from reportlab.pdfgen import canvas
+from flask import send_file
+import io
 
 app = Flask(__name__)
 
@@ -366,6 +368,47 @@ def clientes():
         clientes=clientes
     )
 
+@app.route('/formulario-cliente', methods=['GET', 'POST'])
+@login_required
+def formulario_cliente():
+
+    form = ClienteForm()
+
+    if form.validate_on_submit():
+
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO clientes
+            (nombre, email, telefono, direccion)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (
+                form.nombre.data,
+                form.correo.data,
+                form.telefono.data,
+                form.direccion.data
+            )
+        )
+
+        conexion.commit()
+
+        cursor.close()
+        conexion.close()
+
+        flash(
+            'Cliente registrado correctamente.',
+            'success'
+        )
+
+        return redirect(url_for('clientes'))
+
+    return render_template(
+        'formulario_cliente.html',
+        form=form
+    )
 
 @app.route('/proveedores')
 @login_required
@@ -391,15 +434,167 @@ def proveedores():
         'proveedores.html',
         proveedores=proveedores
     )
+@app.route('/formulario-proveedor', methods=['GET', 'POST'])
+@login_required
+def formulario_proveedor():
+
+    form = ProveedorForm()
+
+    if form.validate_on_submit():
+
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO proveedores
+            (nombre, telefono, correo)
+            VALUES (%s, %s, %s)
+            """,
+            (
+                form.nombre.data,
+                form.telefono.data,
+                form.correo.data
+            )
+        )
+
+        conexion.commit()
+
+        cursor.close()
+        conexion.close()
+
+        flash(
+            'Proveedor registrado correctamente.',
+            'success'
+        )
+
+        return redirect(url_for('proveedores'))
+
+    return render_template(
+        'formulario_proveedor.html',
+        form=form
+    )
 
 
-@app.route('/facturacion')
+@app.route('/facturacion', methods=['GET', 'POST'])
 @login_required
 def facturacion():
 
-    return render_template(
-        'facturacion.html'
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    factura = None
+
+    if request.method == 'POST':
+
+        id_cliente = request.form['cliente']
+        id_producto = request.form['producto']
+        cantidad = int(request.form['cantidad'])
+
+        cursor.execute(
+            """
+            SELECT precio
+            FROM productos
+            WHERE id_producto = %s
+            """,
+            (id_producto,)
+        )
+
+        producto = cursor.fetchone()
+
+        precio = float(producto[0])
+        total = precio * cantidad
+
+        cursor.execute(
+            """
+            INSERT INTO facturas
+            (id_cliente, total)
+            VALUES (%s, %s)
+            RETURNING id_factura
+            """,
+            (id_cliente, total)
+        )
+
+        id_factura = cursor.fetchone()[0]
+        cursor.execute(
+                """
+                SELECT nombre
+                FROM clientes
+                WHERE id_cliente = %s
+                """,
+                (id_cliente,)
+            )
+
+        nombre_cliente = cursor.fetchone()[0]
+
+        cursor.execute(
+                """
+                SELECT nombre
+                FROM productos
+                WHERE id_producto = %s
+                """,
+                (id_producto,)
+            )
+
+        nombre_producto = cursor.fetchone()[0]
+
+        cursor.execute(
+            """
+            INSERT INTO detalle_factura
+            (
+                id_factura,
+                id_producto,
+                cantidad,
+                precio,
+                subtotal
+            )
+            VALUES (%s,%s,%s,%s,%s)
+            """,
+            (
+                id_factura,
+                id_producto,
+                cantidad,
+                precio,
+                total
+            )
+        )
+
+        conexion.commit()
+        factura = {
+                "id": id_factura,
+                "cliente": nombre_cliente,
+                "producto": nombre_producto,
+                "cantidad": cantidad,
+                "precio": precio,
+                "total": total
+         }
+
+        flash(
+            "Venta registrada correctamente",
+            "success"
+        )
+
+    cursor.execute(
+        "SELECT id_cliente,nombre FROM clientes"
     )
+
+    clientes = cursor.fetchall()
+
+    cursor.execute(
+        "SELECT id_producto,nombre FROM productos"
+    )
+
+    productos = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
+
+    return render_template(
+    'facturacion.html',
+    clientes=clientes,
+    productos=productos,
+    factura=factura
+)
 
 
 @app.route('/registro', methods=['GET', 'POST'])
@@ -542,6 +737,99 @@ def logout():
     )
 
     return redirect(url_for('login'))
+
+@app.route('/factura_pdf/<int:id_factura>')
+@login_required
+def factura_pdf(id_factura):
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            f.id_factura,
+            c.nombre,
+            p.nombre,
+            d.cantidad,
+            d.precio,
+            d.subtotal
+        FROM facturas f
+        INNER JOIN clientes c
+            ON f.id_cliente = c.id_cliente
+        INNER JOIN detalle_factura d
+            ON f.id_factura = d.id_factura
+        INNER JOIN productos p
+            ON d.id_producto = p.id_producto
+        WHERE f.id_factura = %s
+        """,
+        (id_factura,)
+    )
+
+    factura = cursor.fetchone()
+
+    cursor.close()
+    conexion.close()
+
+    pdf = io.BytesIO()
+
+    p = canvas.Canvas(pdf)
+
+    # Encabezado
+    p.setFont("Helvetica-Bold", 24)
+    p.drawCentredString(300, 800, "ABASTOS EL OFERTON")
+
+    p.line(50, 785, 550, 785)
+
+    p.setFont("Helvetica", 10)
+    p.drawString(50, 760, "Direccion: Atuntaqui, Ecuador")
+    p.drawString(50, 745, "Telefono: 0999999999")
+    p.drawString(50, 730, "Email: abastoseloferton@gmail.com")
+
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(50, 690, "FACTURA DE VENTA")
+
+    # Datos factura
+    p.setFont("Helvetica", 12)
+
+    p.drawString(50, 650, f"Factura N°: {factura[0]}")
+    p.drawString(50, 625, f"Cliente: {factura[1]}")
+
+    # Tabla encabezado
+    p.setFillColorRGB(0.2, 0.6, 0.2)
+    p.rect(50, 570, 500, 25, fill=1)
+
+    p.setFillColorRGB(1, 1, 1)
+    p.drawString(60, 578, "Producto")
+    p.drawString(260, 578, "Cantidad")
+    p.drawString(360, 578, "Precio")
+    p.drawString(460, 578, "Subtotal")
+
+    # Datos producto
+    p.setFillColorRGB(0, 0, 0)
+
+    p.drawString(60, 540, str(factura[2]))
+    p.drawString(280, 540, str(factura[3]))
+    p.drawString(360, 540, "$" + str(factura[4]))
+    p.drawString(460, 540, "$" + str(factura[5]))
+
+    # Total
+    p.line(350, 500, 550, 500)
+
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(390, 470, f"TOTAL: ${factura[5]}")
+
+    p.save()
+
+    pdf.seek(0)
+
+    return send_file(
+        pdf,
+        download_name=f"factura_{id_factura}.pdf",
+        as_attachment=True,
+        mimetype="application/pdf"
+    )
+
 
 
 if __name__ == '__main__':

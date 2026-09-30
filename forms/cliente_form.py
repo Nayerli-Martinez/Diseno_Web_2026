@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, EmailField, SubmitField
 from wtforms.validators import DataRequired, Length, Email
 
+
 class ClienteForm(FlaskForm):
 
     nombre = StringField(
@@ -20,4 +21,20 @@ class ClienteForm(FlaskForm):
         ]
     )
 
-    guardar = SubmitField('Guardar')
+    telefono = StringField(
+        'Telefono',
+        validators=[
+            DataRequired()
+        ]
+    )
+
+    direccion = StringField(
+        'Direccion',
+        validators=[
+            DataRequired()
+        ]
+    )
+
+    guardar = SubmitField(
+        'Guardar Cliente'
+    )
