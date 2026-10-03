@@ -2,8 +2,8 @@ from conexion.conexion import obtener_conexion
 
 try:
     conexion = obtener_conexion()
-    print("Conexion exitosa a PostgreSQL")
+    print("CONEXIÓN EXITOSA A POSTGRESQL")
     conexion.close()
-
 except Exception as e:
-    print("Error:", e)
+    print("ERROR DE CONEXIÓN:")
+    print(e)
