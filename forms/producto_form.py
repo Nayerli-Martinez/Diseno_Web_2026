@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, SubmitField
+from wtforms import StringField, FloatField, IntegerField, SubmitField
 from wtforms.validators import DataRequired, Length, NumberRange
+
+
 class ProductoForm(FlaskForm):
 
     nombre = StringField(
@@ -18,4 +20,13 @@ class ProductoForm(FlaskForm):
             NumberRange(min=0.01)
         ]
     )
+
+    stock = IntegerField(
+        'Stock',
+        validators=[
+            DataRequired(),
+            NumberRange(min=0)
+        ]
+    )
+
     guardar = SubmitField('Guardar')
