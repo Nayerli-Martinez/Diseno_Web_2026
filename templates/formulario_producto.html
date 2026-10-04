@@ -38,6 +38,18 @@
             {% endfor %}
         </div>
 
+        <!-- STOCK -->
+        <div class="mb-3">
+            {{ form.stock.label(class="form-label") }}
+            {{ form.stock(class="form-control") }}
+
+            {% for error in form.stock.errors %}
+            <div class="text-danger">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
         {{ form.guardar(class="btn btn-primary") }}
 
     </form>

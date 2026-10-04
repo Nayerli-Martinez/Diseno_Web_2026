@@ -180,43 +180,65 @@ def formulario_producto():
 
     form = ProductoForm()
 
-    if form.validate_on_submit():
+    if request.method == 'POST':
+
+        print("========== POST PRODUCTO ==========")
+        print("Nombre:", request.form.get('nombre'))
+        print("Precio:", request.form.get('precio'))
+        print("Stock:", request.form.get('stock'))
+
+        if not form.validate():
+            print("ERRORES:", form.errors)
+
+            return render_template(
+                'formulario_producto.html',
+                form=form
+            )
 
         conexion = obtener_conexion()
         cursor = conexion.cursor()
 
-        cursor.execute(
-            """
-            INSERT INTO productos
-            (nombre, precio, stock, id_proveedor)
-            VALUES (%s, %s, %s, %s)
-            """,
-            (
+        try:
+            cursor.execute("""
+                INSERT INTO productos
+                (nombre, precio, stock, id_proveedor)
+                VALUES (%s, %s, %s, %s)
+            """, (
                 form.nombre.data,
                 form.precio.data,
                 form.stock.data,
                 1
+            ))
+
+            conexion.commit()
+
+            print("******** PRODUCTO GUARDADO ********")
+
+            flash('Producto registrado correctamente.', 'success')
+
+            return redirect(url_for('productos'))
+
+        except Exception as e:
+            conexion.rollback()
+
+            print("******** ERROR SQL ********")
+            print(e)
+
+            flash(f'Error SQL: {e}', 'danger')
+
+            return render_template(
+                'formulario_producto.html',
+                form=form
             )
-        )
 
-        conexion.commit()
-
-        cursor.close()
-        conexion.close()
-
-        flash(
-            'Producto registrado correctamente.',
-            'success'
-        )
-
-        return redirect(url_for('productos'))
+        finally:
+            cursor.close()
+            conexion.close()
 
     return render_template(
         'formulario_producto.html',
         form=form
     )
-
-
 @app.route('/editar_producto/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editar_producto(id):
