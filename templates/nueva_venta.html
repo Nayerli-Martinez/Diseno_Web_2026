@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="text-center text-primary mb-4">
+        Nueva Venta
+    </h2>
+
+    <!-- AGREGAR PRODUCTO -->
+
+    <div class="card p-4 mb-4">
+
+        <h4>Agregar producto</h4>
+
+        <form method="POST"
+              action="{{ url_for('agregar_al_carrito') }}">
+
+            <div class="row">
+
+                <div class="col-md-8">
+
+                    <label class="form-label">
+                        Producto
+                    </label>
+
+                    <select name="id_producto"
+                            class="form-select"
+                            required>
+
+                        <option value="">
+                            Seleccione un producto
+                        </option>
+
+                        {% for producto in productos %}
+
+                        <option value="{{ producto[0] }}">
+
+                            {{ producto[1] }}
+                            - ${{ "%.2f"|format(producto[2]) }}
+                            - Stock: {{ producto[3] }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+                        Cantidad
+                    </label>
+
+                    <input type="number"
+                           name="cantidad"
+                           class="form-control"
+                           min="1"
+                           value="1"
+                           required>
+
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+
+                    <button type="submit"
+                            class="btn btn-success w-100">
+
+                        ➕ Agregar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- CARRITO -->
+
+    <div class="card p-4">
+
+        <h4>Productos de la venta</h4>
+
+        {% if carrito %}
+
+        <table class="table table-bordered">
+
+            <thead class="table-dark">
+
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for item in carrito %}
+
+                <tr>
+
+                    <td>{{ item.nombre }}</td>
+
+                    <td>
+                        ${{ "%.2f"|format(item.precio) }}
+                    </td>
+
+                    <td>
+                        {{ item.cantidad }}
+                    </td>
+
+                    <td>
+                        ${{ "%.2f"|format(item.subtotal) }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+
+        {% set total = namespace(valor=0) %}
+
+        {% for item in carrito %}
+            {% set total.valor = total.valor + item.subtotal %}
+        {% endfor %}
+
+        <h3 class="text-end">
+            Total: ${{ "%.2f"|format(total.valor) }}
+        </h3>
+
+
+        <div class="text-end">
+
+            <a href="{{ url_for('finalizar_venta') }}"
+               class="btn btn-primary">
+
+                💰 Finalizar venta
+
+            </a>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info">
+
+            No hay productos agregados a la venta.
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

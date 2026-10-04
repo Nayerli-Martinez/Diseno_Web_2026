@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash
+from flask import Flask, render_template, redirect, request, session, url_for, flash
 
 from flask_login import (
     LoginManager,
@@ -25,6 +25,7 @@ from conexion.conexion import obtener_conexion
 from reportlab.pdfgen import canvas
 from flask import send_file
 import io
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
 
@@ -668,235 +669,66 @@ def eliminar_proveedor(id):
     return redirect(url_for('proveedores'))
 
 
-@app.route('/facturacion', methods=['GET', 'POST'])
+@app.route('/facturacion')
 @login_required
 def facturacion():
 
     conexion = obtener_conexion()
     cursor = conexion.cursor()
 
-    factura = None
+    cursor.execute("""
+        SELECT id_venta, fecha, total
+        FROM ventas
+        ORDER BY id_venta DESC
+    """)
 
-    if request.method == 'POST':
-
-        id_cliente = request.form['cliente']
-        id_producto = request.form['producto']
-        cantidad = int(request.form['cantidad'])
-
-        # Verificar que la cantidad sea válida
-        if cantidad <= 0:
-            flash(
-                'La cantidad debe ser mayor que cero.',
-                'danger'
-            )
-
-            cursor.close()
-            conexion.close()
-
-            return redirect(url_for('facturacion'))
-
-        # Buscar precio y stock del producto
-        cursor.execute(
-            """
-            SELECT precio, stock
-            FROM productos
-            WHERE id_producto = %s
-            """,
-            (id_producto,)
-        )
-
-        producto = cursor.fetchone()
-
-        # Verificar que el producto exista
-        if not producto:
-
-            flash(
-                'El producto no existe.',
-                'danger'
-            )
-
-            cursor.close()
-            conexion.close()
-
-            return redirect(url_for('facturacion'))
-
-        precio = float(producto[0])
-        stock = int(producto[1])
-
-        # Verificar stock disponible
-        if cantidad > stock:
-
-            flash(
-                f'No hay suficiente stock. Stock disponible: {stock}',
-                'danger'
-            )
-
-            cursor.close()
-            conexion.close()
-
-            return redirect(url_for('facturacion'))
-
-        # Calcular total
-        total = precio * cantidad
-
-        # Crear factura
-        cursor.execute(
-            """
-            INSERT INTO facturas
-            (id_cliente, total)
-            VALUES (%s, %s)
-            RETURNING id_factura
-            """,
-            (id_cliente, total)
-        )
-
-        id_factura = cursor.fetchone()[0]
-
-        # Obtener nombre del cliente
-        cursor.execute(
-            """
-            SELECT nombre
-            FROM clientes
-            WHERE id_cliente = %s
-            """,
-            (id_cliente,)
-        )
-
-        cliente = cursor.fetchone()
-
-        if not cliente:
-
-            conexion.rollback()
-
-            cursor.close()
-            conexion.close()
-
-            flash(
-                'El cliente no existe.',
-                'danger'
-            )
-
-            return redirect(url_for('facturacion'))
-
-        nombre_cliente = cliente[0]
-
-        # Obtener nombre del producto
-        cursor.execute(
-            """
-            SELECT nombre
-            FROM productos
-            WHERE id_producto = %s
-            """,
-            (id_producto,)
-        )
-
-        producto_nombre = cursor.fetchone()
-
-        if not producto_nombre:
-
-            conexion.rollback()
-
-            cursor.close()
-            conexion.close()
-
-            flash(
-                'El producto no existe.',
-                'danger'
-            )
-
-            return redirect(url_for('facturacion'))
-
-        nombre_producto = producto_nombre[0]
-
-        # Registrar detalle de la factura
-        cursor.execute(
-            """
-            INSERT INTO detalle_factura
-            (
-                id_factura,
-                id_producto,
-                cantidad,
-                precio,
-                subtotal
-            )
-            VALUES (%s, %s, %s, %s, %s)
-            """,
-            (
-                id_factura,
-                id_producto,
-                cantidad,
-                precio,
-                total
-            )
-        )
-
-        # Descontar el stock
-        cursor.execute(
-            """
-            UPDATE productos
-            SET stock = stock - %s
-            WHERE id_producto = %s
-            """,
-            (
-                cantidad,
-                id_producto
-            )
-        )
-
-        # Guardar cambios
-        conexion.commit()
-
-        # Información de la factura para mostrar en pantalla
-        factura = {
-            "id": id_factura,
-            "cliente": nombre_cliente,
-            "producto": nombre_producto,
-            "cantidad": cantidad,
-            "precio": precio,
-            "total": total
-        }
-
-        flash(
-            "Venta registrada correctamente.",
-            "success"
-        )
-
-    # ==============================
-    # CARGAR CLIENTES
-    # ==============================
-
-    cursor.execute(
-        """
-        SELECT id_cliente, nombre
-        FROM clientes
-        ORDER BY nombre
-        """
-    )
-
-    lista_clientes = cursor.fetchall()
-
-    # ==============================
-    # CARGAR PRODUCTOS
-    # ==============================
-
-    cursor.execute(
-        """
-        SELECT id_producto, nombre, precio, stock
-        FROM productos
-        ORDER BY nombre
-        """
-    )
-
-    productos = cursor.fetchall()
+    ventas = cursor.fetchall()
 
     cursor.close()
     conexion.close()
 
     return render_template(
         'facturacion.html',
-        clientes=lista_clientes,
-        productos=productos,
-        factura=factura
+        ventas=ventas
+    )
+@app.route('/detalle-factura/<int:id_venta>')
+@login_required
+def detalle_factura(id_venta):
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT
+            v.id_venta,
+            v.fecha,
+            v.total,
+            p.nombre,
+            d.cantidad,
+            d.precio,
+            d.subtotal
+        FROM ventas v
+        JOIN detalle_venta d
+            ON d.id_venta = v.id_venta
+        JOIN productos p
+            ON p.id_producto = d.id_producto
+        WHERE v.id_venta = %s
+        ORDER BY d.id_detalle
+    """, (id_venta,))
+
+    detalles = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
+
+    if not detalles:
+        flash('La venta no existe.', 'danger')
+        return redirect(url_for('facturacion'))
+
+    return render_template(
+        'detalle_factura.html',
+        detalles=detalles,
+        id_venta=id_venta
     )
 
 @app.route('/registro', methods=['GET', 'POST'])
@@ -1040,44 +872,48 @@ def logout():
 
     return redirect(url_for('login'))
 
-@app.route('/factura_pdf/<int:id_factura>')
+@app.route('/factura_pdf/<int:id_venta>')
 @login_required
-def factura_pdf(id_factura):
+def factura_pdf(id_venta):
 
     conexion = obtener_conexion()
     cursor = conexion.cursor()
 
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT
-            f.id_factura,
-            c.nombre,
+            v.id_venta,
+            v.fecha,
+            v.total,
             p.nombre,
             d.cantidad,
             d.precio,
             d.subtotal
-        FROM facturas f
-        INNER JOIN clientes c
-            ON f.id_cliente = c.id_cliente
-        INNER JOIN detalle_factura d
-            ON f.id_factura = d.id_factura
+        FROM ventas v
+        INNER JOIN detalle_venta d
+            ON v.id_venta = d.id_venta
         INNER JOIN productos p
             ON d.id_producto = p.id_producto
-        WHERE f.id_factura = %s
-        """,
-        (id_factura,)
-    )
+        WHERE v.id_venta = %s
+        ORDER BY d.id_detalle
+    """, (id_venta,))
 
-    factura = cursor.fetchone()
+    detalles = cursor.fetchall()
 
     cursor.close()
     conexion.close()
+
+    if not detalles:
+        flash('La venta no existe.', 'danger')
+        return redirect(url_for('facturacion'))
 
     pdf = io.BytesIO()
 
     p = canvas.Canvas(pdf)
 
-    # Encabezado
+    # ==============================
+    # ENCABEZADO
+    # ==============================
+
     p.setFont("Helvetica-Bold", 24)
     p.drawCentredString(300, 800, "ABASTOS EL OFERTON")
 
@@ -1091,35 +927,103 @@ def factura_pdf(id_factura):
     p.setFont("Helvetica-Bold", 16)
     p.drawString(50, 690, "FACTURA DE VENTA")
 
-    # Datos factura
+    # ==============================
+    # DATOS DE LA VENTA
+    # ==============================
+
     p.setFont("Helvetica", 12)
 
-    p.drawString(50, 650, f"Factura N°: {factura[0]}")
-    p.drawString(50, 625, f"Cliente: {factura[1]}")
+    p.drawString(
+        50,
+        650,
+        f"Factura N°: {detalles[0][0]}"
+    )
 
-    # Tabla encabezado
+    p.drawString(
+        50,
+        625,
+        f"Fecha: {detalles[0][1]}"
+    )
+
+    # ==============================
+    # ENCABEZADO TABLA
+    # ==============================
+
     p.setFillColorRGB(0.2, 0.6, 0.2)
     p.rect(50, 570, 500, 25, fill=1)
 
     p.setFillColorRGB(1, 1, 1)
+
     p.drawString(60, 578, "Producto")
     p.drawString(260, 578, "Cantidad")
     p.drawString(360, 578, "Precio")
     p.drawString(460, 578, "Subtotal")
 
-    # Datos producto
+    # ==============================
+    # PRODUCTOS
+    # ==============================
+
     p.setFillColorRGB(0, 0, 0)
+    p.setFont("Helvetica", 10)
 
-    p.drawString(60, 540, str(factura[2]))
-    p.drawString(280, 540, str(factura[3]))
-    p.drawString(360, 540, "$" + str(factura[4]))
-    p.drawString(460, 540, "$" + str(factura[5]))
+    y = 540
 
-    # Total
-    p.line(350, 500, 550, 500)
+    for detalle in detalles:
+
+        nombre_producto = detalle[3]
+        cantidad = detalle[4]
+        precio = detalle[5]
+        subtotal = detalle[6]
+
+        p.drawString(
+            60,
+            y,
+            str(nombre_producto)
+        )
+
+        p.drawString(
+            280,
+            y,
+            str(cantidad)
+        )
+
+        p.drawString(
+            360,
+            y,
+            f"${float(precio):.2f}"
+        )
+
+        p.drawString(
+            460,
+            y,
+            f"${float(subtotal):.2f}"
+        )
+
+        y -= 25
+
+    # ==============================
+    # TOTAL
+    # ==============================
+
+    total = detalles[0][2]
+
+    p.line(350, y - 10, 550, y - 10)
 
     p.setFont("Helvetica-Bold", 14)
-    p.drawString(390, 470, f"TOTAL: ${factura[5]}")
+
+    p.drawString(
+        390,
+        y - 40,
+        f"TOTAL: ${float(total):.2f}"
+    )
+
+    p.setFont("Helvetica", 10)
+
+    p.drawCentredString(
+        300,
+        y - 80,
+        "Gracias por su compra"
+    )
 
     p.save()
 
@@ -1127,11 +1031,178 @@ def factura_pdf(id_factura):
 
     return send_file(
         pdf,
-        download_name=f"factura_{id_factura}.pdf",
+        download_name=f"factura_{id_venta}.pdf",
         as_attachment=True,
         mimetype="application/pdf"
     )
 
+@app.route('/nueva-venta')
+@login_required
+def nueva_venta():
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT id_producto, nombre, precio, stock
+        FROM productos
+        WHERE stock > 0
+        ORDER BY nombre
+    """)
+
+    productos = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
+
+    carrito = session.get('carrito', [])
+
+    return render_template(
+        'nueva_venta.html',
+        productos=productos,
+        carrito=carrito
+    )
+
+@app.route('/agregar-al-carrito', methods=['POST'])
+@login_required
+def agregar_al_carrito():
+
+    id_producto = int(request.form['id_producto'])
+    cantidad = int(request.form['cantidad'])
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT id_producto, nombre, precio, stock
+        FROM productos
+        WHERE id_producto = %s
+    """, (id_producto,))
+
+    producto = cursor.fetchone()
+
+    cursor.close()
+    conexion.close()
+
+    if producto is None:
+        flash('Producto no encontrado.', 'danger')
+        return redirect(url_for('nueva_venta'))
+
+    if cantidad <= 0:
+        flash('La cantidad debe ser mayor a 0.', 'danger')
+        return redirect(url_for('nueva_venta'))
+
+    if cantidad > producto[3]:
+        flash('No hay suficiente stock.', 'danger')
+        return redirect(url_for('nueva_venta'))
+
+    carrito = session.get('carrito', [])
+
+    encontrado = False
+
+    for item in carrito:
+        if item['id_producto'] == id_producto:
+            nueva_cantidad = item['cantidad'] + cantidad
+
+            if nueva_cantidad > producto[3]:
+                flash('No hay suficiente stock.', 'danger')
+                return redirect(url_for('nueva_venta'))
+
+            item['cantidad'] = nueva_cantidad
+            item['subtotal'] = float(producto[2]) * nueva_cantidad
+            encontrado = True
+            break
+
+    if not encontrado:
+
+        carrito.append({
+            'id_producto': producto[0],
+            'nombre': producto[1],
+            'precio': float(producto[2]),
+            'cantidad': cantidad,
+            'subtotal': float(producto[2]) * cantidad
+        })
+
+    session['carrito'] = carrito
+    session.modified = True
+
+    return redirect(url_for('nueva_venta'))
+@app.route('/finalizar-venta')
+@login_required
+def finalizar_venta():
+
+    carrito = session.get('carrito', [])
+
+    if not carrito:
+        flash('No hay productos en la venta.', 'warning')
+        return redirect(url_for('nueva_venta'))
+
+    total = sum(item['subtotal'] for item in carrito)
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    try:
+
+        cursor.execute("""
+            INSERT INTO ventas (total)
+            VALUES (%s)
+            RETURNING id_venta
+        """, (total,))
+
+        id_venta = cursor.fetchone()[0]
+
+        for item in carrito:
+
+            cursor.execute("""
+                INSERT INTO detalle_venta
+                (id_venta, id_producto, cantidad, precio, subtotal)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_venta,
+                item['id_producto'],
+                item['cantidad'],
+                item['precio'],
+                item['subtotal']
+            ))
+
+            cursor.execute("""
+                UPDATE productos
+                SET stock = stock - %s
+                WHERE id_producto = %s
+            """, (
+                item['cantidad'],
+                item['id_producto']
+            ))
+
+        conexion.commit()
+
+        session.pop('carrito', None)
+
+        flash(
+            'Venta registrada correctamente.',
+            'success'
+        )
+
+        return redirect(url_for('productos'))
+
+    except Exception as e:
+
+        conexion.rollback()
+
+        print("ERROR EN VENTA:", e)
+
+        flash(
+            f'ERROR: {e}',
+            'danger'
+        )
+
+        return redirect(url_for('nueva_venta'))
+
+    finally:
+
+        cursor.close()
+        conexion.close()
 
 
 if __name__ == '__main__':

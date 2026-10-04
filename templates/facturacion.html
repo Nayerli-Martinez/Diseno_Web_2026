@@ -2,119 +2,58 @@
 
 {% block content %}
 
-<h2>Facturación</h2>
+<div class="container mt-4">
 
-<div class="card">
-    <div class="card-body">
+    <h2 class="text-center text-primary mb-4">
+        Facturación
+    </h2>
 
-        <form method="POST">
+    {% if ventas %}
 
-            <div class="mb-3">
-                <label>Cliente</label>
+    <table class="table table-bordered table-hover table-striped">
 
-                <select name="cliente" class="form-control" required>
+        <thead class="table-dark">
+            <tr>
+                <th>N° Venta</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
 
-                    {% for cliente in clientes %}
-                    <option value="{{ cliente[0] }}">
-                        {{ cliente[1] }}
-                    </option>
-                    {% endfor %}
+        <tbody>
 
-                </select>
+            {% for venta in ventas %}
 
-            </div>
+            <tr>
+                <td>{{ venta[0] }}</td>
 
-            <div class="mb-3">
-                <label>Producto</label>
-                    <select name="producto" class="form-control" required>
+                <td>{{ venta[1] }}</td>
 
-                        {% for producto in productos %}
-                        <option value="{{ producto[0] }}">
-                            {{ producto[1] }} - Stock disponible: {{ producto[3] }}
-                        </option>
-                        {% endfor %}
+                <td>${{ "%.2f"|format(venta[2]) }}</td>
 
-                    </select>
+                <td>
+                    <a href="{{ url_for('detalle_factura', id_venta=venta[0]) }}"
+                       class="btn btn-primary btn-sm">
+                        Ver factura
+                    </a>
+                </td>
+            </tr>
 
-            </div>
+            {% endfor %}
 
-            <div class="mb-3">
-                <label>Cantidad</label>
+        </tbody>
 
-                <input
-                    type="number"
-                    name="cantidad"
-                    min="1"
-                    class="form-control"
-                    required
-                >
+    </table>
 
-            </div>
+    {% else %}
 
-            <button
-                type="submit"
-                class="btn btn-success"
-            >
-                Generar Factura
-            </button>
-
-        </form>
-
-    </div>
-</div>
-
-{% if factura %}
-
-<br>
-
-<div class="card border-success">
-
-    <div class="card-body">
-
-        <h3>Factura Generada</h3>
-
-        <p>
-            <strong>Factura N°:</strong>
-            {{ factura.id }}
-        </p>
-
-        <p>
-            <strong>Cliente:</strong>
-            {{ factura.cliente }}
-        </p>
-
-        <p>
-            <strong>Producto:</strong>
-            {{ factura.producto }}
-        </p>
-
-        <p>
-            <strong>Cantidad:</strong>
-            {{ factura.cantidad }}
-        </p>
-
-        <p>
-            <strong>Precio:</strong>
-            ${{ factura.precio }}
-        </p>
-
-        <p>
-            <strong>Total:</strong>
-            ${{ factura.total }}
-        </p>
-        <br><br>
- 
-        <a
-        href="{{ url_for('factura_pdf', id_factura=factura.id) }}"
-        class="btn btn-primary"
-        >
-            Descargar PDF
-        </a>
-
+    <div class="alert alert-info text-center">
+        No hay ventas registradas todavía.
     </div>
 
-</div>
+    {% endif %}
 
-{% endif %}
+</div>
 
 {% endblock %}

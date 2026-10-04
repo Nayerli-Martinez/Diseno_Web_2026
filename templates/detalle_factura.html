@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card">
+
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                Factura N° {{ id_venta }}
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <p>
+                <strong>Fecha:</strong>
+                {{ detalles[0][1] }}
+            </p>
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for detalle in detalles %}
+
+                    <tr>
+                        <td>{{ detalle[3] }}</td>
+                        <td>{{ detalle[4] }}</td>
+                        <td>${{ "%.2f"|format(detalle[5]) }}</td>
+                        <td>${{ "%.2f"|format(detalle[6]) }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            <div class="text-end">
+                <h4>
+                    Total:
+                    ${{ "%.2f"|format(detalles[0][2]) }}
+                </h4>
+            </div>
+
+            <div class="mt-3">
+
+                <a href="{{ url_for('facturacion') }}"
+                   class="btn btn-secondary">
+                    ← Volver a Facturación
+                </a>
+
+                <a href="{{ url_for('factura_pdf', id_venta=id_venta) }}"
+                  class="btn btn-success">
+                    📄 Descargar PDF
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
